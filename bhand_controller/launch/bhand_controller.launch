@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="port" default="/dev/pcanusb32"/>
-  <arg name="has_tactile_sensors" default="false"/>
-  <arg name="has_ft_sensor" default="false"/>
+  <arg name="has_tactile_sensors" default="true"/>
+  <arg name="has_ft_sensor" default="true"/>
 
   <node pkg="bhand_controller" type="bhand_node.py" name="bhand_node" output="screen">
       <rosparam command="load" file="$(find bhand_controller)/config/bhand.yaml" />

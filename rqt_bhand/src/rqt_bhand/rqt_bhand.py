@@ -28,7 +28,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from __future__ import division
+
 import os
 import rospkg
 import threading
@@ -151,34 +151,34 @@ class BHandGUI(Plugin):
 		# SUBSCRIPTIONS
 		try:
 			self._subscriber = rospy.Subscriber(self._topic, State, self._receive_state_data)
-		except ValueError, e:
+		except ValueError as e:
 			rospy.logerr('BHandGUI: Error connecting topic (%s)'%e)
 			
 		try:
 			self._joint_subscriber = rospy.Subscriber(self._joint_states_topic, JointState, self._receive_joints_data)
-		except ValueError, e:
+		except ValueError as e:
 			rospy.logerr('BHandGUI: Error connecting topic (%s)'%e)
 			
 		try:
 			self._tact_subscriber = rospy.Subscriber(self._tact_topic, TactileArray, self._receive_tact_data)
-		except ValueError, e:
+		except ValueError as e:
 			rospy.logerr('BHandGUI: Error connecting topic (%s)'%e)
 		
 		# PUBLICATIONS
 		try:
 			self._publisher_command = rospy.Publisher(self._command_topic, JointState, queue_size=10)
-		except ROSException, e:
+		except ROSException as e:
 			rospy.logerr('BHandGUI: Error creating publisher for topic %s (%s)'%(self._command_topic, e))
 		
 		# SERVICES
 		try:
 			self._service_bhand_actions = rospy.ServiceProxy(self._actions_service_name, Actions)
-		except ValueError, e:
+		except ValueError as e:
 			rospy.logerr('BHandGUI: Error connecting service (%s)'%e)
 			
 		try:
 			self._service_set_mode = rospy.ServiceProxy(self._set_mode_service_name, SetControlMode)
-		except ValueError, e:
+		except ValueError as e:
 			rospy.logerr('BHandGUI: Error connecting service (%s)'%e)
 		
 		
@@ -268,7 +268,7 @@ class BHandGUI(Plugin):
 				action = rospy.ServiceProxy(self._actions_service_name, Actions)
 				resp1 = action(Service.INIT_HAND)
 				return resp1
-			except rospy.ServiceException, e:
+			except rospy.ServiceException as e:
 				rospy.logerr("Service call failed: %s"%e)
 		'''
 	
@@ -406,7 +406,7 @@ class BHandGUI(Plugin):
 		self._subscriber.unregister()
 		try:
 			self._subscriber = rospy.Subscriber(self._topic, State, self._receive_state_data)
-		except ValueError, e:
+		except ValueError as e:
 			rospy.logerr('BHandGUI: Error connecting topic (%s)'%e)
 		
 	# Handles the messages from the agvs controller
@@ -470,9 +470,9 @@ class BHandGUI(Plugin):
 			# Call the service recalibrate dspic
 			try:
 				ret = self._service_dspic_reset_odom(0.0, 0.0, 0.0, 0.0)				
-			except ValueError, e:
+			except ValueError as e:
 				rospy.logerr('BHandGUI::press_reset_dspic_odom: (%s)'%e)
-			except rospy.ServiceException, e:
+			except rospy.ServiceException as e:
 				rospy.logerr('BHandGUI::press_reset_dspic_odom: (%s)'%e)
 				QMessageBox.warning(self._widget, "Warning", "Servicio no disponible")
 	
@@ -535,9 +535,9 @@ class BHandGUI(Plugin):
 		'''			
 		try:
 			ret = self._service_set_mode(mode)				
-		except ValueError, e:
+		except ValueError as e:
 			rospy.logerr('BHandGUI::set_control_mode: (%s)'%e)
-		except rospy.ServiceException, e:
+		except rospy.ServiceException as e:
 			rospy.logerr('BHandGUI::set_control_mode: (%s)'%e)
 			QMessageBox.warning(self._widget, "Warning", "Servicio no disponible")
 	
@@ -550,9 +550,9 @@ class BHandGUI(Plugin):
 		'''			
 		try:
 			ret = self._service_bhand_actions(action)				
-		except ValueError, e:
+		except ValueError as e:
 			rospy.logerr('BHandGUI::send_bhand_action: (%s)'%e)
-		except rospy.ServiceException, e:
+		except rospy.ServiceException as e:
 			rospy.logerr('BHandGUI::send_bhand_action: (%s)'%e)
 			QMessageBox.warning(self._widget, "Warning", "Servicio no disponible")
 						
