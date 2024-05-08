@@ -468,6 +468,9 @@ class BHand:
             if action == Service.CLOSE_GRASP:
                 self.closeFingers(3.14)
             
+            if action == Service.CLOSE_GRASP_GENTLE:
+                self.closeFingers_gentle(3.14, 0.003, 0.3, 1)
+            
             if action == Service.CLOSE_HALF_GRASP:
                 self.closeFingers(1.57)
                 
@@ -760,6 +763,9 @@ class BHand:
         
         elif action == Service.CLOSE_HALF_GRASP:
             return 'CLOSE_HALF_GRASP'
+        
+        elif action == Service.CLOSE_GRASP_GENTLE:
+            return 'CLOSE_GRASP_GENTLE'
             
         else:
             return 'UNKNOWN_ACTION'
@@ -978,6 +984,28 @@ class BHand:
         self.hand.move_to(FINGER1, self.hand.rad_to_enc(self.desired_joints_position['F1'], BASE_TYPE), False)
         self.hand.move_to(FINGER2, self.hand.rad_to_enc(self.desired_joints_position['F2'], BASE_TYPE), False)
         self.hand.move_to(FINGER3, self.hand.rad_to_enc(self.desired_joints_position['F3'], BASE_TYPE), False)
+
+    def closeFingers_gentle(self, value, step, detect_threshold, threshold):
+        '''
+            Closes all the fingers
+        '''        
+        pos = value / 2
+        while pos < value and\
+            max(self.hand.tactile_sensor[FINGER1]['values']) < threshold and\
+                max(self.hand.tactile_sensor[FINGER2]['values']) < threshold and\
+                    max(self.hand.tactile_sensor[FINGER3]['values']) < threshold and\
+                        max(self.hand.tactile_sensor[SPREAD]['values']) < threshold:
+            self.readyState()
+            self.hand.move_to(FINGER1, self.hand.rad_to_enc(pos, BASE_TYPE), True)
+            self.hand.move_to(FINGER2, self.hand.rad_to_enc(pos, BASE_TYPE), True)
+            self.hand.move_to(FINGER3, self.hand.rad_to_enc(pos, BASE_TYPE), True)
+            if max(self.hand.tactile_sensor[FINGER1]['values']) > detect_threshold and\
+                max(self.hand.tactile_sensor[FINGER2]['values']) > detect_threshold and\
+                    max(self.hand.tactile_sensor[FINGER3]['values']) > detect_threshold and\
+                        max(self.hand.tactile_sensor[SPREAD]['values']) > detect_threshold:
+                pos += step * 5
+            else:
+                pos += step
         
         
         
