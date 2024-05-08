@@ -31,6 +31,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import numpy as np
 import rospy 
 from bhand_controller.pyHand_api import *
 
@@ -469,7 +470,7 @@ class BHand:
                 self.closeFingers(3.14)
             
             if action == Service.CLOSE_GRASP_GENTLE:
-                self.closeFingers_gentle(3.14, 0.003, 0.3, 1)
+                self.closeFingers_gentle(3.14, 0.02, 0.5, 7)
             
             if action == Service.CLOSE_HALF_GRASP:
                 self.closeFingers(1.57)
@@ -990,27 +991,37 @@ class BHand:
             Closes all the fingers
         '''        
         pos = value / 2
-        while pos < value and\
-            max(self.hand.tactile_sensor[FINGER1]['values']) < threshold and\
-                max(self.hand.tactile_sensor[FINGER2]['values']) < threshold and\
-                    max(self.hand.tactile_sensor[FINGER3]['values']) < threshold and\
-                        max(self.hand.tactile_sensor[SPREAD]['values']) < threshold:
+        hist = []
+
+        max_pressure = max(
+            max(self.hand.tactile_sensor[FINGER1]['values']),
+            max(self.hand.tactile_sensor[FINGER2]['values']),
+            max(self.hand.tactile_sensor[FINGER3]['values']),
+            max(self.hand.tactile_sensor[SPREAD]['values'])
+        )
+
+        while True:
+            max_pressure = max(
+                max(self.hand.tactile_sensor[FINGER1]['values']),
+                max(self.hand.tactile_sensor[FINGER2]['values']),
+                max(self.hand.tactile_sensor[FINGER3]['values']),
+                max(self.hand.tactile_sensor[SPREAD]['values'])
+            )
+            hist.append(max_pressure)
             self.readyState()
             self.hand.move_to(FINGER1, self.hand.rad_to_enc(pos, BASE_TYPE), True)
             self.hand.move_to(FINGER2, self.hand.rad_to_enc(pos, BASE_TYPE), True)
             self.hand.move_to(FINGER3, self.hand.rad_to_enc(pos, BASE_TYPE), True)
-            if max(self.hand.tactile_sensor[FINGER1]['values']) > detect_threshold and\
-                max(self.hand.tactile_sensor[FINGER2]['values']) > detect_threshold and\
-                    max(self.hand.tactile_sensor[FINGER3]['values']) > detect_threshold and\
-                        max(self.hand.tactile_sensor[SPREAD]['values']) > detect_threshold:
+            if np.average(hist[-3:]) > detect_threshold:
                 pos += step * 5
             else:
                 pos += step
-        
-        
-        
-def main():
+            
+            if np.average(hist[-3:]) > threshold:
+                break
 
+
+def main():
     rospy.init_node("bhand_node")
     
     
