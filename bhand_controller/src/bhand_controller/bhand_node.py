@@ -470,7 +470,7 @@ class BHand:
                 self.closeFingers(3.14)
             
             if action == Service.CLOSE_GRASP_GENTLE:
-                self.closeFingers_gentle(3.14, 0.02, 0.5, 7)
+                self.closeFingers_gentle(3.14, 0.003, 0.5, 4, 1)
             
             if action == Service.CLOSE_HALF_GRASP:
                 self.closeFingers(1.57)
@@ -986,38 +986,35 @@ class BHand:
         self.hand.move_to(FINGER2, self.hand.rad_to_enc(self.desired_joints_position['F2'], BASE_TYPE), False)
         self.hand.move_to(FINGER3, self.hand.rad_to_enc(self.desired_joints_position['F3'], BASE_TYPE), False)
 
-    def closeFingers_gentle(self, value, step, detect_threshold, threshold):
+    def closeFingers_gentle(self, value, step, detect_threshold, max_force, min_force):
         '''
             Closes all the fingers
         '''        
         pos = value / 2
-        hist = []
+        # hist = []
 
-        max_pressure = max(
-            max(self.hand.tactile_sensor[FINGER1]['values']),
-            max(self.hand.tactile_sensor[FINGER2]['values']),
-            max(self.hand.tactile_sensor[FINGER3]['values']),
-            max(self.hand.tactile_sensor[SPREAD]['values'])
-        )
-
-        while True:
-            max_pressure = max(
-                max(self.hand.tactile_sensor[FINGER1]['values']),
-                max(self.hand.tactile_sensor[FINGER2]['values']),
-                max(self.hand.tactile_sensor[FINGER3]['values']),
-                max(self.hand.tactile_sensor[SPREAD]['values'])
-            )
-            hist.append(max_pressure)
+        while True and pos < value:
             self.readyState()
+            max_pressure_f1 = max(self.hand.tactile_sensor[FINGER1]['values'])
+            max_pressure_f2 = max(self.hand.tactile_sensor[FINGER2]['values'])
+            max_pressure_f3 = max(self.hand.tactile_sensor[FINGER3]['values'])
+            max_pressure = max(
+                max_pressure_f1, max_pressure_f2, max_pressure_f3
+            )
+            min_max_pressure = min(
+                max_pressure_f1, max_pressure_f2, max_pressure_f3
+            )
+            # hist.append(max_pressure)
             self.hand.move_to(FINGER1, self.hand.rad_to_enc(pos, BASE_TYPE), True)
             self.hand.move_to(FINGER2, self.hand.rad_to_enc(pos, BASE_TYPE), True)
             self.hand.move_to(FINGER3, self.hand.rad_to_enc(pos, BASE_TYPE), True)
-            if np.average(hist[-3:]) > detect_threshold:
-                pos += step * 5
+
+            if max_pressure < detect_threshold:
+                pos += step * 4
             else:
                 pos += step
             
-            if np.average(hist[-3:]) > threshold:
+            if max_pressure > max_force or min_max_pressure > min_force:
                 break
 
 
