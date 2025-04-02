@@ -1,0 +1,8 @@
+# Joint ids (don't modify) 
+joint_ids: [ F1, F1_TIP, F2, F2_TIP, F3, F3_TIP, SPREAD_1, SPREAD_2]
+# Joint names associated with the ids
+joint_names: [bhand_left_j12_joint, bhand_left_j13_joint, bhand_left_j22_joint, bhand_left_j23_joint, bhand_left_j32_joint, bhand_left_j33_joint, bhand_left_j11_joint, bhand_left_j21_joint]
+# Default control mode
+control_mode: POSITION
+# Desired freq
+desired_freq: 250.0

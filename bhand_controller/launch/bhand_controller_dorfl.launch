@@ -10,7 +10,7 @@
       <param name="port" value="$(arg port)" />
       <param name="tactile_sensors" value="$(arg has_tactile_sensors)" />
       <param name="ft_sensor" value="$(arg has_ft_sensor)" />
-      <remap from="joint_states" to="dorfl/bhand_left/joint_states" />
+      <remap from="joint_states" to="/dorfl/bhand_left/joint_states" />
   </node>
 </group>
 </launch>
